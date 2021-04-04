@@ -2,7 +2,7 @@ import requests
 import os
 import xlsxwriter
 import xlrd
-
+# pip3 install xlrd==1.2.0
 
 image_urls = []
 broken_images = []
@@ -27,27 +27,31 @@ worksheet.set_column('A:A', 30)
 worksheet.set_column('B:B', 30)
 worksheet.set_default_row(90)
 bold = workbook.add_format({'bold': True})
+worksheet.write('A1', "Tên", bold)
+worksheet.write('B1', "Ảnh", bold)
 
 
 def save_image(image_path, image_name, position):
     print(position)
 
-    worksheet.write('A' + str(position), image_name, bold)
-    worksheet.insert_image('B' + str(position), image_path,
+    worksheet.write('A' + str(position + 1), image_name, bold)
+    worksheet.insert_image('B' + str(position + 1), image_path,
                            {'x_scale': 0.15, 'y_scale': 0.15})
 
 
 def download_images(urls):
     for i in range(1, len(urls)):
+        url = urls[i].replace("wid=3000&hei=3000", "wid=600&hei=600", 1)
         # We can split the file based upon / and extract the last split within the python list below:
-        file_name = urls[i].split("/")[-1]
+        file_name = url.split("/")[-1]
+        name = url.split("/")[-1].split("_")[0]
         if file_name[-4:] in valid_image:
             # print(f"This is the file name: {file_name}")
             # Now let's send a request to the image URL:
             old_path = "./" + file_name
             new_path = "./all_images/" + file_name
 
-            r = requests.get(urls[i], stream=True)
+            r = requests.get(url, stream=True)
             # We can check that the status code is 200 before doing anything else:
             if r.status_code == 200:
                 # This command below will allow us to write the data to a file as binary:
@@ -55,28 +59,28 @@ def download_images(urls):
                     for chunk in r:
                         f.write(chunk)
                 os.rename(old_path, new_path)
-                save_image(new_path, file_name, i)
+                save_image(new_path, name, i)
 
             else:
                 # We will write all of the images back to the broken_images list:
-                broken_images.append(urls[i])
+                broken_images.append(url)
 
         else:
             file_name = file_name + ".jpeg"
             old_path = "./" + file_name
-
+            name = url.split("/")[-1].split("_")[0]
             new_path = "./all_images/" + file_name
-            r = requests.get(urls[i], stream=True)
+            r = requests.get(url, stream=True)
             if r.status_code == 200:
                 with open(file_name, 'wb') as f:
                     for chunk in r:
                         f.write(chunk)
 
                 os.rename(old_path, new_path)
-                save_image(new_path, file_name, i)
+                save_image(new_path, name, i)
 
             else:
-                broken_images.append(urls[i])
+                broken_images.append(url)
     workbook.close()
 
 
