@@ -33,7 +33,7 @@ worksheet.write('C1', "Ảnh 1", bold)
 worksheet.write('D1', "Ảnh 2", bold)
 
 
-def save_image(image_path, image_name, position):
+def save_image(image_path, image_name, position, image_index):
     worksheet.write('A' + str(position + 1), image_name, bold)
     worksheet.insert_image('B' + str(position + 1), image_path,
                            {'x_scale': 0.15, 'y_scale': 0.15})
@@ -72,7 +72,6 @@ def download_images(urls):
         print(file_name)
         if "_main" in file_name:
             print(file_name)
-
             if file_name[-4:] in valid_image:
                 # Now let's send a request to the image URL:
                 old_path = "./" + file_name
